@@ -1,6 +1,25 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
+import { getHistoryAPI } from '../services/allAPI';
+import { useEffect } from 'react';
+import { removeHistoryAPI } from './../services/allAPI';
 function Watch() {
+  const[history,setHistory]=useState([])
+  const getAllHistory= async()=>{
+    const result= await getHistoryAPI()
+    if(result.status>=200 && result.status<300)
+    {
+      setHistory(result.data)
+    }
+  }
+  useEffect(()=>{
+    getAllHistory()
+  },[])
+  const deleteHistory =async(vId)=>{
+    // api call
+    await removeHistoryAPI(vId)
+    getAllHistory()
+  }
   return (
     <div className='conatiner mt-5 mb-5'>
      <div className="d-flex justify-content-between">
@@ -18,13 +37,17 @@ function Watch() {
         </tr>
       </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>React</td>
-            <td><a href='https://youtu.be/CgkZ7MvWUAA?si=rke-qm8iOy-qYmq7' target='_black'>https://youtu.be/CgkZ7MvWUAA?si=rke-qm8iOy-qYmq7</a></td>
-            <td>02/19/2024,12:07:08 PM</td>
-            <td><i className='fa-solid fa-trash text-danger'></i></td>
+          {history?.length>0? history?.map((video,index)=>(
+            <tr key={index}>
+            <td>{index+1}</td>
+            <td>{video?.caption}</td>
+            <td><a href={video?.youtublink} target='_black'>{video?.youtublink}</a></td>
+            <td>{video?.timeStamp}</td>
+            <td><button onClick={()=>deleteHistory(video.id)} className='btn'><i className='fa-solid fa-trash text-danger'></i></button></td>
           </tr>
+          )):<tr className='text-danger fw-bolder'>
+            Your  Watch history is empty!!!
+            </tr>}
         </tbody>
      </table>
     </div>

@@ -1,13 +1,17 @@
 import React, { useState } from 'react'
 import { Modal,Button,FloatingLabel,Form} from 'react-bootstrap'
-function Add() {
+import { uploadVideoAPI } from './../services/allAPI';
+function Add({setUploadVideoRespones}) {
 const [uploadVideo,setUploadVideo]=useState({
  caption:'',imageURL:'',youtublink:''
 })
 console.log(uploadVideo);
  const [show, setShow] = useState(false);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => 
+ { setShow(false);
+  setUploadVideo({...uploadVideo,caption:"",imageURL:"",youtublink:""})
+}
   const handleShow = () => setShow(true);
   const getEmbedLink=(link)=>{
     if(link.includes('v='))
@@ -20,11 +24,31 @@ console.log(uploadVideo);
     }
 
   }
-
+  const  handleUpload=async()=>{
+    // store upload video in http://localhost:5173/home to http://localhost:5173/home
+    const {caption,imageURL,youtublink}=uploadVideo
+    if(caption && imageURL && youtublink)
+    {
+      // alert("store the video")
+      const result=await uploadVideoAPI(uploadVideo)
+     console.log(result);
+     if(result.status>=20 && result.status<=300)
+     {
+      alert(`Video "${result.data.caption}" uploaded successfully!!!`)
+      setUploadVideoRespones(result.data)
+      handleClose()
+     }
+     else{
+      alert("API Call Failed.. Please try after some time!!!")
+     }
+    }else{
+      alert("Please fill the form completly!!")
+    }
+  }
   return (
     <div>
       <div className="d-flex mt-2">
-        <h5>Upload A Video</h5>
+        <h5 style={{color:'white'}}>Upload A Video</h5>
         <button onClick={handleShow} style={{borderRadius:"50%",marginLeft:'5px'}} className='btn bg-secondary ms-2'><i style={{color:'white'}} class="fa-solid fa-plus"></i></button>
       </div>
       <Modal show={show} onHide={handleClose}>
@@ -54,7 +78,7 @@ console.log(uploadVideo);
           <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button className='btn btn-info' variant="primary" onClick={handleClose}>
+          <Button className='btn btn-info' variant="primary" onClick={handleUpload}>
             Uplad
           </Button>
         </Modal.Footer>

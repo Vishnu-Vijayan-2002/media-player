@@ -1,0 +1,1 @@
+export const SEVER_URL ="https://react-media-player.onrender.com"
